@@ -2,62 +2,77 @@ import { useContext, useEffect, useState } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 import requestText from "./model/RequestText";
 import parsingText from "./model/ParsingText";
-import DataContext from "./Store/data-context";
+import DataContext from "./store/data-context";
 import Content from "./pages/Content";
 
 function App() {
+  // Store rules text
   const dataContext = useContext(DataContext);
+  // Rules found from a search query
   const [searchResult, setSearchResult] = useState();
-  const history = useHistory()
+  const [loading, setLoading] = useState(true);
+  const history = useHistory();
 
+  // Request text
   useEffect(() => {
-    // Initial load, parsing and storing rules data
-
-    requestText.then(text => {
-      console.log(text)
-    })
-    // dataContext.setParsedData(parsingText(t))
-    // dataContext.setPlainText(t)
+    requestText(
+      "https://media.wizards.com/2021/downloads/MagicCompRules%2020210609.txt"
+    ).then((text) => {
+      dataContext.setPlainText(text);
+      // Parsing and saving text to context
+      dataContext.setParsedText(parsingText(text));
+      setLoading(false);
+    });
   }, []);
 
-  useEffect(() => {
-    if (!dataContext.data) return
-    const object = Object.fromEntries(dataContext.data)
-    const json = JSON.stringify(dataContext.data)
-    console.log(json)
-    history.push({pathname: '/', state: {data: dataContext.data}})
-}, [dataContext.data])
+  // Pushes page with parsed text.
+  useEffect(
+    () =>
+      history.push({ pathname: "/", state: { text: dataContext.parsedText } }),
+    [dataContext.parsedText]
+  );
 
+  // Search bar input handler
   function searchOnChangeHandler(e) {
     if (!e.target.value) {
-      setSearchResult(null)
-      return
+      setSearchResult(null);
+      return;
     }
-    const input = escapeRegExp(e.target.value)
-    console.log(e)
-    const searchRegExp = new RegExp(String.raw`(?<=\n{2}).*${input}.*(?=\n{2})`, 'gi')
-    setSearchResult(dataContext.plainText.match(searchRegExp))
-    
+    // Creates regExp from query
+    const userInput = escapeRegExp(e.target.value);
+    const searchRegExp = new RegExp(
+      String.raw`(?<=(\r\n){2}).*${userInput}.*(?=(\r\n){2})`,
+      "gi"
+    );
+    // Set founded rules to State.
+    setSearchResult(dataContext.plainText.match(searchRegExp));
+
+    // Copied from MDN RegExp documentation
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
   }
 
-  // Copied from 
-  function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-  }
-  
+  if (loading) return <h1>Loading and processing data, please wait...</h1>
 
   return (
     <div className="App">
       <div>
-        <input type="text" placeholder="Search..." onChange={searchOnChangeHandler}/>
+        <input
+          type="text"
+          placeholder="Search..."
+          onChange={searchOnChangeHandler}
+        />
       </div>
-      {searchResult ? searchResult.map(object => {
-        return <p>{object}</p>
-      })
-       :
+      {searchResult ? (
+        searchResult.map((object) => {
+          return <p>{object}</p>;
+        })
+      ) : (
         <Switch>
-        <Route path='/' component={Content} />
-      </Switch>}
+          <Route path="/" component={Content} />
+        </Switch>
+      )}
     </div>
   );
 }

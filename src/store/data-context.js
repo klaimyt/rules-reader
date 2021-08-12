@@ -1,20 +1,21 @@
 import { createContext, useState } from "react";
 
+// Just for auto-complition
 const DataContext = createContext({
-  setParsedData: () => {},
+  setParsedText: () => {},
   setPlainText: () => {},
-  parsedData: Map,
+  parsedText: Map,
   plainText: String
 });
 
 export function DataContextProvider(props) {
-  const [parsedData, setParsedData] = useState();
+  const [parsedText, setParsedText] = useState();
   const [plainText, setPlainText] = useState()
 
   const context = {
-    setParsedData: setParsedData,
+    setParsedText: setParsedText,
     setPlainText: setPlainText,
-    parsedData: parsedData,
+    parsedText: parsedText,
     plainText: plainText
   };
 

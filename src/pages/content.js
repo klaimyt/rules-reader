@@ -3,13 +3,15 @@ import { useHistory } from "react-router-dom";
 const Content = (props) => {
   const history = useHistory()
 
+  // Opens the clicked page
   function clickHandler(cellData) {
     if (cellData[1].size < 1) return
-    history.push({pathname: '/', state: {data: cellData[1]}})
+    history.push({pathname: '/', state: {text: cellData[1]}})
   }
 
-  function showDataWith(titles) {
+  function showTextWith(titles) {
     if (!titles) return null;
+    // Creates array of [titleText, subtitleMap]
     return Array.from(titles).map((title) => {
       return (
         <div>
@@ -33,7 +35,7 @@ const Content = (props) => {
   }
 
   if (props.location.state) {
-    return <div>{showDataWith(props.location.state.data)}</div>;
+    return <div>{showTextWith(props.location.state.text)}</div>;
   }
 
   return <div>Loading...</div>
