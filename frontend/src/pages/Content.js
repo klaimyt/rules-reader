@@ -5,19 +5,19 @@ const Content = (props) => {
 
   // Opens the clicked page
   function clickHandler(cellData) {
-    if (cellData[1].size < 1) return
-    history.push({pathname: '/', state: {text: cellData[1]}})
+    if ((cellData[1].size < 1) || Object.keys(cellData[1]).length === 0) return
+    history.push({ pathname: '/', state: {text: cellData[1] }})
   }
 
-  function showTextWith(titles) {
-    if (!titles) return null;
-    // Creates array of [titleText, subtitleMap]
-    return Array.from(titles).map((title) => {
+  function renderPageFrom(titlesJson) {
+    if (!titlesJson) return null;
+    // Creates array of [titleText, subtitleJSON] and parsing it to html
+    return Object.entries(titlesJson).map((title) => {
       return (
         <div>
           <p>{title[0]}</p>
           <ul>
-          {Array.from(title[1]).map((subtitle) => {
+          {Object.entries(title[1]).map((subtitle) => {
             return (
               <li
                 onClick={() => {
@@ -35,7 +35,7 @@ const Content = (props) => {
   }
 
   if (props.location.state) {
-    return <div>{showTextWith(props.location.state.text)}</div>;
+    return <div>{renderPageFrom(props.location.state.text)}</div>;
   }
 
   return <div>Loading...</div>

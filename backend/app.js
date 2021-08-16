@@ -19,5 +19,6 @@ app.use(express.json());
 
 app.listen(5000, () => {
   console.log("Server started on port 5000")
+  // Request and save rules to glabal var when server loaded
   requestText("https://media.wizards.com/2021/downloads/MagicCompRules%2020210712.txt")
 });
